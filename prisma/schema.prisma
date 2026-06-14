@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Alumno {
+  id                 Int      @id @default(autoincrement()) // este campo es el ID del alumno, es un entero que se autoincrementa cada vez que se crea un nuevo alumno
+  nombre             String // este campo es el nombre del alumno, es una cadena de texto
+  apellido           String // este campo es el apellido del alumno, es una cadena de texto
+  edad               Int? // este campo es la edad del alumno, es un entero
+  email              String   @unique // este campo es el correo electrónico del alumno, es una cadena de texto y debe ser único
+  telefono           String? // este campo es el número de teléfono del alumno, es una cadena de texto y puede ser nulo el ? indica que el campo es opcional
+  fechaCreacion      DateTime @default(now()) // este campo es la fecha de creación del alumno, es una fecha y hora que se establece automáticamente al crear un nuevo alumno
+  fechaActualizacion DateTime @updatedAt // este campo es la fecha de modificación del alumno, es una fecha y hora que se actualiza automáticamente cada vez que se modifica un alumno
+  cursos             Curso[] // relacion muchos a muchos con el modelo Curso, un alumno puede estar inscrito en varios cursos
+}
+
+model Curso {
+  id         Int       @id @default(autoincrement()) // este campo es el ID del curso, es un entero que se autoincrementa cada vez que se crea un nuevo curso
+  nombre     String    @unique // este campo es el nombre del curso, es una cadena de texto
+  alumnos    Alumno[] // relacion muchos a muchos con el modelo Alumno, un curso puede tener varios alumnos inscritos
+  profesores Profesor? @relation(fields: [profesorId], references: [id]) // relacion uno a muchos con el modelo Profesor, un curso es impartido por un profesor
+  profesorId Int? // este campo es la clave foránea que apunta al ID del profesor que imparte el curso, es un entero
+}
+
+model Profesor {
+  id       Int     @id @default(autoincrement())
+  nombre   String
+  apellido String
+  email    String  @unique
+  cursos   Curso[] // relacion muchos a muchos con el modelo Curso, un profesor puede impartir varios cursos
+}
+
+//prisma me crea una tabla intermedia llamada AlumnoCurso para manejar la relación muchos a muchos entre Alumno y Curso, esta tabla tiene dos campos: alumnoId y cursoId, que son las claves foráneas que apuntan a los IDs de los modelos Alumno y Curso respectivamente, además de un campo id que es el ID de la relación, es un entero que se autoincrementa cada vez que se crea una nueva relación entre un alumno y un curso
